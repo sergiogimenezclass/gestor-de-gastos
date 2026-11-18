@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ControlGastos - Gestor de finanzas personales, ingresos, gastos y presupuestos">
+  <title>ControlGastos — Finanzas Personales</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <div class="layout-app">
+    <!-- Barra Lateral (Desktop) -->
+    <aside class="sidebar-desktop" aria-label="Navegación principal">
+      <div class="marca-app">
+        <div class="logo-icono" aria-hidden="true">💳</div>
+        <div class="logo-texto">
+          <h1>ControlGastos</h1>
+          <span class="subtitulo-marca">Finanzas Personales</span>
+        </div>
+      </div>
+
+      <nav class="nav-lateral">
+        <button type="button" class="boton-nav activo" data-panel="dashboard" role="tab" aria-selected="true" aria-controls="panel-dashboard">
+          <span class="icono-nav" aria-hidden="true">📊</span>
+          <span class="etiqueta-nav">Dashboard</span>
+        </button>
+        <button type="button" class="boton-nav" data-panel="movimientos" role="tab" aria-selected="false" aria-controls="panel-movimientos">
+          <span class="icono-nav" aria-hidden="true">📑</span>
+          <span class="etiqueta-nav">Movimientos</span>
+        </button>
+        <button type="button" class="boton-nav" data-panel="nuevo" role="tab" aria-selected="false" aria-controls="panel-nuevo">
+          <span class="icono-nav" aria-hidden="true">➕</span>
+          <span class="etiqueta-nav">Nuevo Movimiento</span>
+        </button>
+      </nav>
+
+      <div class="widget-sidebar-balance">
+        <span class="widget-titulo">Estado de Cuenta</span>
+        <span class="widget-monto" id="sidebar-balance">$ 0,00</span>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="contenedor-principal">
+      <!-- Encabezado Superior Móvil y Desktop -->
+      <header class="header-superior">
+        <div class="header-info">
+          <h2 id="titulo-vista-actual">Dashboard Financiero</h2>
+          <p id="fecha-hoy-texto" class="texto-fecha"></p>
+        </div>
+        <div class="header-acciones">
+          <button type="button" id="boton-ir-nuevo" class="boton-primario-sm">
+            <span aria-hidden="true">➕</span> Registrar
+          </button>
+        </div>
+      </header>
+
+      <!-- PANEL 1: DASHBOARD -->
+      <section id="panel-dashboard" class="panel-vista" role="tabpanel" aria-labelledby="tab-dashboard">
+        <!-- Tarjetas de KPIs -->
+        <div class="grilla-kpis">
+          <article class="tarjeta-kpi tarjeta-kpi-balance">
+            <div class="kpi-encabezado">
+              <span class="kpi-titulo">Balance Disponible</span>
+              <span class="kpi-icono" aria-hidden="true">💰</span>
+            </div>
+            <div class="kpi-valor" id="kpi-balance">$ 0,00</div>
+            <span class="kpi-pie">Disponible actual acumulado</span>
+          </article>
+
+          <article class="tarjeta-kpi tarjeta-kpi-ingresos">
+            <div class="kpi-encabezado">
+              <span class="kpi-titulo">Ingresos del Mes</span>
+              <span class="kpi-icono" aria-hidden="true">📈</span>
+            </div>
+            <div class="kpi-valor valor-ingreso" id="kpi-ingresos">$ 0,00</div>
+            <span class="kpi-pie">Total percibido en el mes</span>
+          </article>
+
+          <article class="tarjeta-kpi tarjeta-kpi-gastos">
+            <div class="kpi-encabezado">
+              <span class="kpi-titulo">Gastos del Mes</span>
+              <span class="kpi-icono" aria-hidden="true">📉</span>
+            </div>
+            <div class="kpi-valor valor-gasto" id="kpi-gastos">$ 0,00</div>
+            <span class="kpi-pie">Total egresado en el mes</span>
+          </article>
+        </div>
+
+        <!-- Secciones de Distribución y Últimos Movimientos -->
+        <div class="grilla-dashboard-doble">
+          <!-- Distribución de gastos -->
+          <article class="tarjeta-bloque">
+            <div class="bloque-encabezado">
+              <h3>Distribución de Gastos</h3>
+              <span class="badge-subtitulo">Por categoría</span>
+            </div>
+            <div id="lista-distribucion-gastos" class="lista-distribucion">
+              <!-- Renderizado dinámico de barras porcentuales -->
+            </div>
+          </article>
+
+          <!-- Últimos Movimientos -->
+          <article class="tarjeta-bloque">
+            <div class="bloque-encabezado">
+              <h3>Últimos Movimientos</h3>
+              <button type="button" id="boton-ver-todos" class="enlace-accion">Ver todos</button>
+            </div>
+            <ul id="lista-ultimos-movimientos" class="lista-recientes">
+              <!-- Renderizado dinámico de los últimos 5 movimientos -->
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- PANEL 2: MOVIMIENTOS (HISTORIAL) -->
+      <section id="panel-movimientos" class="panel-vista" role="tabpanel" aria-labelledby="tab-movimientos" hidden>
+        <div class="barra-filtros">
+          <div class="filtro-campo campo-busqueda">
+            <label for="filtro-busqueda" class="sr-only">Buscar por descripción</label>
+            <input type="search" id="filtro-busqueda" placeholder="Buscar por descripción..." autocomplete="off">
+          </div>
+
+          <div class="filtros-selectores">
+            <div class="filtro-campo">
+              <label for="filtro-tipo" class="sr-only">Tipo</label>
+              <select id="filtro-tipo">
+                <option value="todos">Todos los tipos</option>
+                <option value="ingreso">Solo Ingresos</option>
+                <option value="gasto">Solo Gastos</option>
+              </select>
+            </div>
+
+            <div class="filtro-campo">
+              <label for="filtro-categoria" class="sr-only">Categoría</label>
+              <select id="filtro-categoria">
+                <option value="todas">Todas las categorías</option>
+              </select>
+            </div>
+
+            <div class="filtro-campo">
+              <label for="filtro-orden" class="sr-only">Ordenar por</label>
+              <select id="filtro-orden">
+                <option value="fecha-desc">Más recientes primero</option>
+                <option value="fecha-asc">Más antiguos primero</option>
+                <option value="monto-desc">Mayor importe primero</option>
+                <option value="monto-asc">Menor importe primero</option>
+              </select>
+            </div>
+
+            <button type="button" id="boton-limpiar-filtros" class="boton-secundario" title="Restablecer filtros">
+              Limpiar
+            </button>
+          </div>
+        </div>
+
+        <div class="cabecera-resultados">
+          <span id="badge-contador-movimientos" class="badge-contador">0 movimientos</span>
+        </div>
+
+        <div class="contenedor-tabla">
+          <table class="tabla-movimientos">
+            <thead>
+              <tr>
+                <th scope="col">Tipo</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Categoría</th>
+                <th scope="col">Fecha</th>
+                <th scope="col" class="texto-derecha">Importe</th>
+                <th scope="col" class="texto-centro">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="cuerpo-tabla-movimientos">
+              <!-- Renderizado dinámico de filas -->
+            </tbody>
+          </table>
+
+          <div id="movimientos-vacio" class="estado-vacio" hidden>
+            <div class="vacio-icono" aria-hidden="true">🔍</div>
+            <p class="vacio-texto">No se encontraron movimientos registrados con los filtros aplicados.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANEL 3: NUEVO MOVIMIENTO -->
+      <section id="panel-nuevo" class="panel-vista" role="tabpanel" aria-labelledby="tab-nuevo" hidden>
+        <div class="tarjeta-formulario">
+          <div class="formulario-encabezado">
+            <h3>Registrar Transacción</h3>
+            <p>Completá los campos para asentar un nuevo movimiento en tu cuenta.</p>
+          </div>
+
+          <form id="formulario-movimiento" novalidate>
+            <!-- Selector de Tipo Toggle -->
+            <div class="grupo-campo">
+              <span class="etiqueta-campo">Tipo de Movimiento</span>
+              <div class="toggle-tipo" role="radiogroup" aria-label="Tipo de movimiento">
+                <label class="opcion-toggle">
+                  <input type="radio" name="tipo-movimiento" value="gasto" checked>
+                  <span class="toggle-boton toggle-gasto">📉 Gasto</span>
+                </label>
+                <label class="opcion-toggle">
+                  <input type="radio" name="tipo-movimiento" value="ingreso">
+                  <span class="toggle-boton toggle-ingreso">📈 Ingreso</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="fila-campos">
+              <div class="grupo-campo">
+                <label for="monto" class="etiqueta-campo">Importe ($) *</label>
+                <input type="number" id="monto" step="0.01" min="0.01" placeholder="0.00" required>
+              </div>
+
+              <div class="grupo-campo">
+                <label for="categoria" class="etiqueta-campo">Categoría *</label>
+                <select id="categoria" required>
+                  <option value="">Seleccioná una categoría</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="fila-campos">
+              <div class="grupo-campo">
+                <label for="fecha" class="etiqueta-campo">Fecha *</label>
+                <input type="date" id="fecha" required>
+              </div>
+
+              <div class="grupo-campo">
+                <label for="descripcion" class="etiqueta-campo">Descripción o Detalle *</label>
+                <input type="text" id="descripcion" placeholder="Ej: Compra en supermercado" maxlength="60" required>
+              </div>
+            </div>
+
+            <div id="mensaje-formulario" class="mensaje-alerta" aria-live="polite" hidden></div>
+
+            <div class="formulario-acciones">
+              <button type="button" id="boton-cancelar-formulario" class="boton-secundario">Cancelar</button>
+              <button type="submit" class="boton-primario">Guardar Movimiento</button>
+            </div>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <!-- Barra Inferior (Mobile) -->
+    <nav class="bottom-nav-mobile" aria-label="Navegación móvil">
+      <button type="button" class="boton-nav activo" data-panel="dashboard" role="tab" aria-selected="true">
+        <span class="icono-nav" aria-hidden="true">📊</span>
+        <span class="etiqueta-nav">Dashboard</span>
+      </button>
+      <button type="button" class="boton-nav" data-panel="movimientos" role="tab" aria-selected="false">
+        <span class="icono-nav" aria-hidden="true">📑</span>
+        <span class="etiqueta-nav">Movimientos</span>
+      </button>
+      <button type="button" class="boton-nav" data-panel="nuevo" role="tab" aria-selected="false">
+        <span class="icono-nav" aria-hidden="true">➕</span>
+        <span class="etiqueta-nav">Nuevo</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- MODAL DE EDICIÓN NATIVO (<dialog>) -->
+  <dialog id="modal-editar" class="dialog-modal">
+    <div class="modal-contenido">
+      <div class="modal-cabecera">
+        <h4>Editar Movimiento</h4>
+        <button type="button" id="boton-cerrar-modal-x" class="boton-cerrar" aria-label="Cerrar modal">&times;</button>
+      </div>
+
+      <form id="formulario-editar" novalidate>
+        <input type="hidden" id="editar-id">
+
+        <div class="grupo-campo">
+          <label for="editar-tipo" class="etiqueta-campo">Tipo</label>
+          <select id="editar-tipo" required>
+            <option value="gasto">Gasto</option>
+            <option value="ingreso">Ingreso</option>
+          </select>
+        </div>
+
+        <div class="fila-campos">
+          <div class="grupo-campo">
+            <label for="editar-monto" class="etiqueta-campo">Importe ($) *</label>
+            <input type="number" id="editar-monto" step="0.01" min="0.01" required>
+          </div>
+
+          <div class="grupo-campo">
+            <label for="editar-categoria" class="etiqueta-campo">Categoría *</label>
+            <select id="editar-categoria" required></select>
+          </div>
+        </div>
+
+        <div class="fila-campos">
+          <div class="grupo-campo">
+            <label for="editar-fecha" class="etiqueta-campo">Fecha *</label>
+            <input type="date" id="editar-fecha" required>
+          </div>
+
+          <div class="grupo-campo">
+            <label for="editar-descripcion" class="etiqueta-campo">Descripción *</label>
+            <input type="text" id="editar-descripcion" maxlength="60" required>
+          </div>
+        </div>
+
+        <div id="mensaje-modal-editar" class="mensaje-alerta" aria-live="polite" hidden></div>
+
+        <div class="modal-acciones">
+          <button type="button" id="boton-cancelar-editar" class="boton-secundario">Cancelar</button>
+          <button type="submit" class="boton-primario">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- MODAL DE ELIMINACIÓN NATIVO (<dialog>) -->
+  <dialog id="modal-eliminar" class="dialog-modal">
+    <div class="modal-contenido">
+      <div class="modal-cabecera">
+        <h4>Confirmar Eliminación</h4>
+      </div>
+      <p>¿Estás seguro de que deseás eliminar este movimiento? Esta acción no se puede deshacer.</p>
+      <div id="eliminar-detalle-movimiento" class="detalle-baja"></div>
+      <div class="modal-acciones">
+        <button type="button" id="boton-cancelar-eliminar" class="boton-secundario">Cancelar</button>
+        <button type="button" id="boton-confirmar-eliminar" class="boton-peligro">Eliminar Registro</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Script orquestador principal -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
